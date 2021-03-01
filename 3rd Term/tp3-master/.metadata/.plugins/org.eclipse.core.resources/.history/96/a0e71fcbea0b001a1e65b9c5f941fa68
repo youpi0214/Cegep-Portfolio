@@ -1,0 +1,14 @@
+changer pas fait pour fait au fur et a mesure qu'on avance
+
+ETAPES
+
+-interfaces visuel operationnel (fait)
+-binding label (fait)
+-binding data (fait)
+-apparaitre particule (fait)
+-bouger particule en ligne droite (fait)
+-bouger particule en ligne droite et avec un angle (fait)
+-optimisation
+-collision en ligne droite *1D* (pas fait)
+-collision en ligne droite et avec angle *2D* (pas fait)
+-gestion mangeuse (pas fait)

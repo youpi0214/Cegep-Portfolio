@@ -1,0 +1,33 @@
+package musique;
+
+import java.io.File;
+
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.DirectoryChooser;
+
+public class BoomBox {
+
+	Media cassette;
+	MediaPlayer monTrosGrandWalkMan;
+	DirectoryChooser checkMoiCaUnePlaylist;
+	Media[] playlist;
+
+	public BoomBox() {
+		creerPlaylist(getDirectory());
+	}
+
+	public Media[] creerPlaylist(File directory) {
+		if (directory.isDirectory()) {
+
+		}
+		return new Media[1];
+	}
+
+	public File getDirectory() {
+		checkMoiCaUnePlaylist = new DirectoryChooser();
+		checkMoiCaUnePlaylist.setTitle("Play me da beat");
+		return checkMoiCaUnePlaylist.showDialog(null);
+	}
+
+}

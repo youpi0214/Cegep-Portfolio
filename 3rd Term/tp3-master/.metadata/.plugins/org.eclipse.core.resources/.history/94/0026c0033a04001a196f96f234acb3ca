@@ -1,0 +1,76 @@
+package ctrl;
+
+import java.awt.Point;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import composantes.Mangeuse;
+import composantes.Particule;
+import composantes.Rebondissante;
+import javafx.stage.Window;
+import vue.Collision_Vue;
+
+public class Ctrl {
+
+	private ArrayList<Particule> listParticules;
+	private Data data;
+	private Collision_Vue vue;
+
+	public Ctrl() {
+		data = new Data();
+		listParticules = new ArrayList<>();
+		try {
+			vue = new Collision_Vue(this);
+		} catch (IOException ex) {
+
+			ex.printStackTrace();
+		}
+	}
+
+	public void genPart(Point position) {
+		if (position != null) {
+			float[] paramVit = { ((float) Math.sin(data.getAngle()) * data.getVitesse()),
+					((float) Math.cos(data.getAngle()) * data.getVitesse()) };
+			Particule nouvellePart;
+			if (data.isEstRebond())
+				nouvellePart = new Rebondissante(position, paramVit, data.getAngle(), data.getRayon(),
+						data.getCouleur());
+			else
+				nouvellePart = new Mangeuse(position, paramVit, data.getAngle(), data.getRayon(), data.getCouleur());
+			ajouterPart(nouvellePart);
+		try
+		{
+			vue = new Collision_Vue(this);
+		}
+		catch (IOException ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+
+	public void reiniPart() {
+		listParticules.clear();
+	}
+
+	public void ajouterPart(Particule pPart) {
+		listParticules.add(pPart);
+	}
+
+	public void enleverPart(Particule pPart) {
+		pPart.die();
+		listParticules.remove(pPart);
+	}
+
+	public void genererRandPart(int nbr, boolean estRebond) {
+		for (int i = 0; i < nbr; i++)
+			if (estRebond)
+				listParticules.add(new Rebondissante());
+			else
+				listParticules.add(new Mangeuse());
+	}
+
+	public Collision_Vue getVue() {
+		// TODO Auto-generated method stub
+		return vue;
+	}
+}

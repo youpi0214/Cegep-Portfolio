@@ -1,0 +1,146 @@
+package ctrl;
+
+import java.awt.Point;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ChangeListener;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import modele.Mangeuse;
+import modele.Particule;
+import modele.Rebondissante;
+import vue.Collision_Vue;
+
+public class Ctrl {
+
+	private ArrayList<Particule> listParticules;
+	private Data data;
+	private Collision_Vue vue;
+	// dimension du Pane
+	private Point dimensionBoite;
+
+	public Ctrl() throws Exception {
+		data = new Data();
+		listParticules = new ArrayList<>();
+		vue = new Collision_Vue(this);
+
+		// utiliser plus tard pour la verfier les colisions avec les parois
+		dimensionBoite = new Point();
+		dimensionBoite.setLocation(vue.getBoite().getWidth(), vue.getBoite().getHeight());
+
+		genLabelBindings();
+		genDataBindings();
+
+		// test
+		testMethodData();
+	}
+
+	public void setDataCouleur() {
+		data.setCouleur(vue.getCouleur_CP().getValue());
+
+		// TODO ligne de test, a enlever plus tard
+		System.out.println("couleur :" + data.getCouleur());
+	}
+
+	/**
+	 * lie les attributs du data au valeurs des sliders
+	 */
+	private void genDataBindings() {
+		data.getAngle().bind(vue.getAngle_Slr().valueProperty());
+		data.getRayon().bind(vue.getRayon_Slr().valueProperty());
+		data.getVitesse().bind(vue.getVitesse_Slr().valueProperty());
+		// set a true si rebondissante et a false si mangeuse est selectionnee
+		data.isEstRebond().bind(vue.getRebond_RB().selectedProperty());
+	}
+
+	/**
+	 * lie les sliders avec leur label respectif
+	 */
+	private void genLabelBindings() {
+		// bind le Label du rayon et son slider
+		vue.getRayon_L().textProperty().bind(vue.getRayon_Slr().valueProperty().asString("%4.2f"));
+		// bind le Label de l'angle et son slider
+		vue.getAngle_L().textProperty().bind(vue.getAngle_Slr().valueProperty().asString("%4.3f"));
+		// bind le Label de la vitesse et son slider
+		vue.getVitesse_L().textProperty().bind(vue.getVitesse_Slr().valueProperty().asString("%4.3f"));
+		vue.getVolume_L().textProperty().bind(vue.getMusique_Slr().valueProperty().multiply(100).asString("%1.1f"));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List getDataValues() {
+		List temp = new ArrayList();
+		temp.add(data.getRayon().doubleValue());
+		temp.add(data.getCouleur());
+
+		return temp;
+	}
+
+	public List<Particule> getListParticules() {
+		return listParticules;
+	}
+
+	public void genPart(Point position) {
+		System.out.println(position);
+		if (data.isEstRebond().getValue())
+			ajouterPart(new Rebondissante(position, data.getVitesse().getValue(), data.getAngle().getValue(),
+					data.getRayon().getValue(), data.getCouleur()));
+		else
+			ajouterPart(new Mangeuse(position, data.getVitesse().getValue(), data.getAngle().getValue(),
+					data.getRayon().getValue(), data.getCouleur()));
+	}
+
+	public void reiniPart() {
+		listParticules.clear();
+
+	}
+
+	public void ajouterPart(Particule pPart) {
+		listParticules.add(0, pPart);
+		vue.addShape(pPart.getPosition());
+	}
+
+	public void enleverPart(Particule pPart) {
+		pPart.die();
+		listParticules.remove(pPart);
+	}
+
+	public void genererRandPart(int nbr, boolean estRebond) {
+		for (int i = 0; i < nbr; i++)
+			if (estRebond)
+				ajouterPart(new Rebondissante());
+			else
+				ajouterPart(new Mangeuse());
+	}
+
+	public Collision_Vue getVue() {
+		return vue;
+	}
+
+	public void testMethodData() {
+		// TODO methode utiliser pour test les bindinds des data **a enlever a
+		// la fin du du travail** ps : so tu veux tester, test les syso 1 par 1
+		// si non ca va pleuvoir des nombres dans la console hahahaha
+
+		data.getAngle().addListener(e -> {
+			System.out.println("vitesse : " + String.format("%4.3f", data.getAngle().doubleValue()));
+		});
+
+		data.getRayon().addListener(e -> {
+			System.out.println("vitesse : " + String.format("%4.3f", data.getRayon().doubleValue()));
+		});
+
+		data.getVitesse().addListener(e -> {
+			System.out.println("vitesse : " + String.format("%4.3f", data.getVitesse().doubleValue()));
+		});
+
+		data.isEstRebond().addListener(e -> {
+			System.out.println("rebond : " + data.isEstRebond().getValue());
+		});
+
+	}
+
+}

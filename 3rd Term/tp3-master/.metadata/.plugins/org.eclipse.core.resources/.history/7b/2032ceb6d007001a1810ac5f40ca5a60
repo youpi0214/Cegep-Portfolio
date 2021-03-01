@@ -1,0 +1,100 @@
+package ctrl;
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.paint.Color;
+
+public class Data {
+
+	/**
+	 * Constante représentant la couleur défaut à afficher sur le ColorPicker
+	 */
+	public static final Color COULEUR_DEFAUT = Color.WHITE;
+	/**
+	 * 
+	 */
+	private DoubleProperty angle, vitesse, rayon, volume;
+	/**
+	 * 
+	 */
+	private Color couleur;
+	/**
+	 * 
+	 */
+	private BooleanProperty estRebond;
+
+	/**
+	 * 
+	 */
+	public Data() {
+		angle = new SimpleDoubleProperty();
+		angle.set(0);
+		vitesse = new SimpleDoubleProperty();
+		vitesse.set(0);
+		rayon = new SimpleDoubleProperty();
+		rayon.set(4);
+		volume = new SimpleDoubleProperty();
+		volume.set(0);
+		couleur = COULEUR_DEFAUT;
+		estRebond = new SimpleBooleanProperty();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public DoubleProperty getAngle() {
+		return angle;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public DoubleProperty getVitesse() {
+		return vitesse;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public DoubleProperty getRayon() {
+		return rayon;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public DoubleProperty getVolume() {
+		return volume;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Color getCouleur() {
+		return couleur;
+	}
+
+	/**
+	 * 
+	 * @param pCouleur
+	 */
+	public void setCouleur(Color pCouleur) {
+		couleur = pCouleur;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public BooleanProperty isEstRebond() {
+		return estRebond;
+	}
+
+}

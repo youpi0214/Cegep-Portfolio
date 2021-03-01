@@ -1,0 +1,24 @@
+package musique;
+
+import java.io.File;
+
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.DirectoryChooser;
+
+public class BoomBox {
+
+	Media cassette;
+	MediaPlayer monTrosGrandWalkMan;
+	DirectoryChooser checkMoiCaUnePlaylist;
+	Media[] playlist;
+
+	public BoomBox() {
+
+	}
+
+	public Media[] creerPlaylist(File directory) {
+
+	}
+
+}

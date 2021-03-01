@@ -1,0 +1,29 @@
+package modele;
+
+import java.awt.Point;
+import java.util.Set;
+
+import javafx.scene.paint.Color;
+
+public class Mangeuse extends Particule {
+
+	public Mangeuse(Point pPos, double pVitesse, double pAngleDep, double pRayon, Color pCouleur, Point pZone,
+			RegroupementParticules environementPart) {
+		super(pPos, pVitesse, pAngleDep, pRayon, pCouleur, pZone, environementPart);
+	}
+
+	@Override
+	public void handleCollision(Particule pPart) {
+		if (pPart instanceof Rebondissante && getRayon().getValue() > pPart.getRayon().getValue()) {
+			manger(pPart);
+		} else
+			rebond(pPart);
+	}
+
+	private void manger(Particule pPart) {
+		setRayon(getRayon().getValue() + 1);
+		environementPart.getListParticules().remove(pPart);
+		pPart.getMouvement().die();
+	}
+
+}

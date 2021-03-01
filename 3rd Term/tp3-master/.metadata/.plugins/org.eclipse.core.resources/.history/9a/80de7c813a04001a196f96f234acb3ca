@@ -1,0 +1,20 @@
+package appColl;
+
+import ctrl.Ctrl;
+import javafx.stage.Stage;
+import vue.Collision_Vue;
+
+public class Application extends javafx.application.Application {
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		Collision_Vue vue = new Collision_Vue(new Ctrl());
+		primaryStage.setScene(value);
+
+	}
+
+	public static void main(String[] args) {
+		Application.launch();
+	}
+
+}

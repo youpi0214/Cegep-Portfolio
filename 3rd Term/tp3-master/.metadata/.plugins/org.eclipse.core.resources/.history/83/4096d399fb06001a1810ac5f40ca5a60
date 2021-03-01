@@ -1,0 +1,10 @@
+package musique;
+
+
+public class BoomBox {
+
+	public BoomBox() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

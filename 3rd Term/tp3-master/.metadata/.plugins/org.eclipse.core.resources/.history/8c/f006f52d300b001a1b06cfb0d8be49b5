@@ -1,0 +1,57 @@
+package modele;
+
+import java.awt.Point;
+import java.util.Set;
+
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+
+public class Mangeuse extends Particule {
+
+	// Angles du cercle trigo
+//	private final double[] ANGLES_MINI_BALLES = { 0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4, Math.PI,
+//			5 * Math.PI / 4, 3 * Math.PI / 2, 7 * Math.PI / 4 };
+	private final double[] ANGLES_MINI_BALLES = { 0, 45, 90, 135, 180, 225, 270, 315 };
+	private final int NBR_BALLES_EXPLOSION = ANGLES_MINI_BALLES.length;
+	private final int RAYON_MINI_BALLES = 4;
+	private final double VITESSE_MINI_BALLES = 1;
+
+	public Mangeuse(Point pPos, double pVitesse, double pAngleDep, double pRayon, Color pCouleur, Point pZone,
+			RegroupementParticules environementPart) {
+		super(pPos, pVitesse, pAngleDep, pRayon, pCouleur, pZone, environementPart);
+	}
+
+	@Override
+	public void handleCollision(Particule pPart) {
+		if (pPart instanceof Rebondissante && getRayon().getValue() > pPart.getRayon().getValue()) {
+			manger(pPart);
+		} else
+			rebond(pPart);
+	}
+
+	private void manger(Particule pPart) {
+		System.out.println(getRayon().getValue());
+		setRayon(getRayon().getValue() + 1);
+		((Circle) environementPart.getLienParticules().get(this)).setRadius(getRayon().getValue());
+		;
+		if (getRayon().getValue() > 20)
+			explose();
+		System.out.println(getRayon().getValue());
+		environementPart.enleverPart(pPart);
+	}
+
+	private void explose() {
+		Color newCouleur = getCouleur();
+		Point newPosition = new Point();
+		environementPart.enleverPart(this);
+		for (int i = 0; i < NBR_BALLES_EXPLOSION; i++) {
+			newPosition.setLocation(getPosition().getX() + ((4 * RAYON_MINI_BALLES) * Math.cos(ANGLES_MINI_BALLES[i])),
+					getPosition().getY() + ((4 * RAYON_MINI_BALLES) * Math.sin(ANGLES_MINI_BALLES[i])));
+
+			environementPart.ajouterPart(new Rebondissante(newPosition, VITESSE_MINI_BALLES, ANGLES_MINI_BALLES[i],
+					RAYON_MINI_BALLES, newCouleur, getZoneDep(), environementPart));
+		}
+
+	}
+
+}

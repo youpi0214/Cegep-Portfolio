@@ -1,0 +1,170 @@
+package ctrl;
+
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Shape;
+import modele.Mangeuse;
+import modele.Particule;
+import modele.Rebondissante;
+import modele.RegroupementParticules;
+import musique.BoomBox;
+import vue.Collision_Vue;
+
+/**
+ * Classe de controle du collisionneur Gère les évènements liés aux composantes
+ * de la vue et s'occupe de lier les particules aux éléments visuels de lu GUI
+ * 
+ * @author Nicolas Boulet et Yannick André Ouamba
+ *
+ */
+public class Ctrl {
+
+	/**
+	 * Constante pour le maximum de particules à générer à la fois en utilisant la
+	 * fonctionnalité de génération aléatoire.
+	 */
+	public static final int NBR_PART_MAX = 300;
+	/**
+	 * Lien entre les valeurs selectionnées dans le GUI et cette classe.
+	 */
+	private Data data;
+	/**
+	 * Référence au GUI, permet de gérer les contraintes reliés à ce dernier.
+	 */
+	private Collision_Vue vue;
+
+	/**
+	 * Point représentant le point le plus éloigné de l'origine de la zone
+	 * d'affichage des particules.
+	 */
+	private Point dimensionBoite;
+	/**
+	 * Objet servant à gérer la musique dans l'application.
+	 */
+	private BoomBox musique;
+
+	private RegroupementParticules liste;
+
+	/**
+	 * Constructeur
+	 * 
+	 * Instantie les deux listes ainsi que le lien vers les données selectionnées
+	 * par l'utilisateur. Instancie les attributs non-instanciés.
+	 * 
+	 * @throws Exception déclaré si le fichier FXML est non-trouvé
+	 */
+	public Ctrl() throws Exception {
+		data = new Data();
+		liste = new RegroupementParticules();
+		vue = new Collision_Vue(this);
+
+		// utiliser plus tard pour la verfier les colisions avec les parois
+		dimensionBoite = new Point();
+		dimensionBoite.setLocation(vue.getBoite().getPrefWidth(), vue.getBoite().getPrefHeight());
+		dimensionBoite.setLocation(vue.getBoite().getPrefWidth(), vue.getBoite().getPrefHeight());
+
+		genLabelBindings();
+		genDataBindings();
+	}
+
+
+
+	/**
+	 * Méthode utilisée par le GUI pour modifier la couleur dans data à chaque fois
+	 * qu'une nouvelle couleur est selectionnée
+	 */
+	public void setDataCouleur() {
+		data.setCouleur(vue.getCouleur_CP().getValue());
+	}
+
+	/**
+	 * Crée un objet musique et permet de choisir le dossier de musique voulu. Joue
+	 * la musique automatiquement
+	 */
+	public void gogoMusique() {
+		if (musique == null) {
+			musique = new BoomBox(data.getVolume().getValue());
+//			musique.setVolume(100);
+			Thread t = new Thread(musique);
+			t.setDaemon(true);
+			t.start();
+		} else {
+			musique.getMediaView().setMediaPlayer(null);
+			musique = null;
+			gogoMusique();
+		}
+	}
+
+	/**
+	 * Donne la valeur minimale de volume au Slider au à l'objet qui joue la musique
+	 * si le bouton est activé. S'il est désactivé le volume est rétabli au volume
+	 * précédant.
+	 */
+	public void clickMute() {
+		try {
+			musique.mute();
+			vue.getMusique_Slr().setValue(musique.getMediaView().getMediaPlayer().getVolume());
+		} catch (Exception e) {
+
+		}
+	}
+
+	/**
+	 * Crée le lien entre le data et chacun des Slider dans le GUI. Utilise aussi un
+	 * ChangeListener pour changer le volume de la musique en temps réel
+	 */
+	private void genDataBindings() {
+		data.getAngle().bind(vue.getAngle_Slr().valueProperty());
+		data.getRayon().bind(vue.getRayon_Slr().valueProperty());
+		data.getVitesse().bind(vue.getVitesse_Slr().valueProperty());
+		data.getVolume().bind(vue.getMusique_Slr().valueProperty());
+//		TODO ENLEVER CETTE METHODE
+		vue.getMusique_Slr().valueProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				if (musique != null)
+					musique.setVolume(vue.getMusique_Slr().valueProperty().getValue().doubleValue());
+
+			}
+		});
+		// set a true si rebondissante et a false si mangeuse est selectionnee
+		data.isEstRebond().bind(vue.getRebond_RB().selectedProperty());
+
+	}
+
+	/**
+	 * Crée le lien entre les Slider et les Label, permetant ainsi de voir avec
+	 * précision la valeur selectionné par ces derniers.
+	 */
+	private void genLabelBindings() {
+		// bind le Label du rayon et son slider
+		vue.getRayon_L().textProperty().bind(vue.getRayon_Slr().valueProperty().asString("%4.1f"));
+		// bind le Label de l'angle et son slider
+		vue.getAngle_L().textProperty().bind(vue.getAngle_Slr().valueProperty().asString("%4.1f"));
+		// bind le Label de la vitesse et son slider
+		vue.getVitesse_L().textProperty().bind(vue.getVitesse_Slr().valueProperty().asString("%4.1f"));
+
+		vue.getVolume_L().textProperty().bind(vue.getMusique_Slr().valueProperty().multiply(100).asString("%1.1f"));
+
+		vue.getNbrPart_L().textProperty().bind(nbrePart_Property.asString());
+	}
+
+	public Data getData() {
+		return data;
+	}
+
+	/**
+	 * @return la référence à la vue de type Collision_Vue
+	 */
+	public Collision_Vue getVue() {
+		return vue;
+	}
+}

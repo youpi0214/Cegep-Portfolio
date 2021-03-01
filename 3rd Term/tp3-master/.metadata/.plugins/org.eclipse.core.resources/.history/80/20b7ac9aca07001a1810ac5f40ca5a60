@@ -1,0 +1,10 @@
+package modele;
+
+
+public class RegroupementParticules {
+
+	public RegroupementParticules() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

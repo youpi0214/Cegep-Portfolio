@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity"
+	minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+	prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171"
+	xmlns:fx="http://javafx.com/fxml/1">
+	<bottom>
+		<GridPane hgap="50.0" prefHeight="174.0" prefWidth="1000.0"
+			style="-fx-background-color: linear-gradient(to right,rgb(27,230,240),white);"
+			vgap="10.0" BorderPane.alignment="CENTER">
+			<columnConstraints>
+
+				<ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="200.0" />
+				<ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="200.0" />
+				<ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="250.0" />
+				<ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="200.0" />
+				<ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="200.0" />
+
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints minHeight="10.0" prefHeight="30.0"
+					vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0"
+					vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="10.0"
+					vgrow="SOMETIMES" />
+			</rowConstraints>
+			<children>
+				<VBox prefHeight="121.0" prefWidth="182.0"
+					GridPane.columnIndex="1">
+					<children>
+						<HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+							<children>
+								<Label text="Vitesse (px/s) :" />
+								<Label fx:id="vitesse_L" text="0" />
+							</children>
+						</HBox>
+						<Slider fx:id="vitesse_Slr" blockIncrement="1.0"
+							majorTickUnit="5.0" max="10.0" minorTickCount="1"
+							showTickLabels="true" showTickMarks="true" />
+					</children>
+				</VBox>
+				<VBox prefHeight="72.0" prefWidth="189.0"
+					GridPane.columnIndex="2">
+					<children>
+						<HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+							<children>
+								<Label text="Angle :" />
+								<Label fx:id="angle_L" text="0" />
+							</children>
+						</HBox>
+
+						<Slider fx:id="angle_Slr" blockIncrement="0.1"
+							majorTickUnit="60.0" max="360.0" minorTickCount="0"
+							showTickLabels="true" showTickMarks="true" />
+					</children>
+					<padding>
+						<Insets right="20.0" />
+					</padding>
+				</VBox>
+				<VBox prefHeight="42.0" prefWidth="196.0" spacing="5.0"
+					GridPane.columnIndex="1" GridPane.rowIndex="1">
+					<children>
+						<Label prefHeight="17.0" prefWidth="65.0" text="Couleur :" />
+						<ColorPicker fx:id="couleur_CP"
+							onAction="#handleCouleur" prefHeight="25.0" prefWidth="201.0" />
+					</children>
+					<GridPane.margin>
+						<Insets />
+					</GridPane.margin>
+				</VBox>
+				<HBox prefHeight="100.0" prefWidth="200.0"
+					GridPane.rowIndex="1">
+					<children>
+						<CheckBox fx:id="effet_CB" mnemonicParsing="false"
+							text="CheckBox" />
+					</children>
+				</HBox>
+				<HBox prefHeight="39.0" prefWidth="196.0" spacing="10.0"
+					GridPane.columnIndex="2" GridPane.rowIndex="1">
+					<children>
+						<RadioButton fx:id="rebond_RB" mnemonicParsing="false"
+							selected="true" text="Rebondissante" />
+						<RadioButton fx:id="mangeuse_RB"
+							mnemonicParsing="false" text="Mangeuse" />
+					</children>
+					<padding>
+						<Insets top="30.0" />
+					</padding>
+				</HBox>
+				<HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+					<children>
+						<Label text="Nbr particule(s) :" />
+						<Label fx:id="nbrPart_L" prefHeight="17.0" prefWidth="48.0" text="0" />
+					</children>
+				</HBox>
+				<HBox alignment="CENTER_LEFT" prefHeight="36.0"
+					prefWidth="553.0" spacing="20.0" GridPane.columnSpan="2147483647"
+					GridPane.rowIndex="2">
+					<children>
+						<HBox alignment="BOTTOM_LEFT" prefHeight="26.0"
+							prefWidth="403.0" spacing="10.0">
+							<children>
+
+								<Label prefHeight="17.0" prefWidth="226.0"
+									text="Nombre de balle à générer aléatoirement :" />
+								<TextField fx:id="nbrRand_TF" prefHeight="25.0"
+									prefWidth="47.0" onKeyPressed="#handleGen" />
+								<Button fx:id="generer_Btn" mnemonicParsing="false"
+									text="Générer" onAction="#handleGen" />
+							</children>
+						</HBox>
+						<HBox alignment="BOTTOM_RIGHT" prefHeight="35.0"
+							prefWidth="186.0" spacing="10.0">
+							<children>
+								<Button fx:id="reini_Btn" mnemonicParsing="false"
+									text="Réinitialiser" onAction="#handleReini" />
+								<Button fx:id="quit_Btn" mnemonicParsing="false"
+									text="Quitter" onAction="#handleQuit" />
+							</children>
+						</HBox>
+					</children>
+				</HBox>
+				<VBox prefHeight="119.0" prefWidth="164.0"
+					GridPane.columnIndex="3">
+					<children>
+						<HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+							<children>
+								<Label text="Rayon (px) :" />
+								<Label fx:id="rayon_L" text="0" />
+							</children>
+						</HBox>
+						<Slider fx:id="rayon_Slr" blockIncrement="0.1"
+							majorTickUnit="4.0" max="20.0" min="4.0" minorTickCount="0"
+							showTickLabels="true" showTickMarks="true" />
+					</children>
+				</VBox>
+				<HBox alignment="CENTER_LEFT" prefHeight="150.0"
+					prefWidth="150.0" GridPane.columnIndex="4"
+					GridPane.rowSpan="2147483647">
+					<children>
+						<VBox alignment="CENTER" prefHeight="180.0" prefWidth="97.0">
+							<children>
+								<ToggleButton fx:id="mute_TB"
+									mnemonicParsing="false" prefHeight="60.0" prefWidth="60.0"
+									text="Volume" />
+								<HBox alignment="TOP_CENTER" prefHeight="86.0"
+									prefWidth="97.0" spacing="5.0">
+									<children>
+										<Label text="Volume :" />
+										<Label fx:id="volume_L" text="0" />
+									</children>
+									<opaqueInsets>
+										<Insets />
+									</opaqueInsets>
+									<padding>
+										<Insets top="20.0" />
+									</padding>
+								</HBox>
+								<Button fx:id="musique_Btn" mnemonicParsing="false"
+									text="Musique" />
+							</children>
+							<padding>
+								<Insets top="10.0" />
+							</padding>
+						</VBox>
+
+						<Slider fx:id="musique_Slr" blockIncrement="0.1"
+							majorTickUnit="0.2" max="1.0" minorTickCount="0"
+							orientation="VERTICAL" prefHeight="150.0" prefWidth="46.0"
+							showTickLabels="true" showTickMarks="true" />
+					</children>
+				</HBox>
+			</children>
+			<padding>
+				<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+			</padding>
+		</GridPane>
+	</bottom>
+	<opaqueInsets>
+		<Insets />
+	</opaqueInsets>
+	<center>
+		<Pane fx:id="boite" maxHeight="-Infinity" maxWidth="-Infinity"
+			minHeight="-Infinity" minWidth="-Infinity" prefHeight="426.0"
+			prefWidth="1000.0" BorderPane.alignment="CENTER" />
+	</center>
+</BorderPane>

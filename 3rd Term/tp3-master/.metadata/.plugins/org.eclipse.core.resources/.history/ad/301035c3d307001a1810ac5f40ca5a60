@@ -1,0 +1,282 @@
+package vue;
+
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
+import java.awt.Point;
+import java.io.IOException;
+import ctrl.Ctrl;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+
+/**
+ * 
+ * @author Nicolas Boulet et Yannick André Ouamba
+ *
+ */
+public class Collision_Vue {
+
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private Label nbrPart_L, vitesse_L, angle_L, rayon_L, volume_L;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private ColorPicker couleur_CP;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private CheckBox effet_CB;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private RadioButton rebond_RB;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private RadioButton mangeuse_RB;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private ToggleButton mute_TB;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private Button generer_Btn, reini_Btn, quit_Btn, musique_Btn;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private Slider vitesse_Slr, angle_Slr, rayon_Slr, musique_Slr;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private TextField nbrRand_TF;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	private ToggleGroup typePart_TG;
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	@FXML
+	private Pane boite;
+
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	private Scene scene;
+
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	private BorderPane root;
+
+	/**
+	 * Attributs qui représentes les Label. Leurs noms s'expliquent d'un-même
+	 */
+	private Ctrl ctrlCol;
+
+	/**
+	 * Constructeur
+	 * 
+	 * Prends un {@link Ctrl} en paramètre et charge la feuille XML ainsi que le
+	 * feuille CSS.
+	 */
+	public Collision_Vue(Ctrl pCtrl) throws IOException {
+		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/vue/collision_fxml.fxml"));
+		ctrlCol = pCtrl;
+
+		loader.setController(this);
+		root = loader.load();
+		scene = new Scene(root);
+		scene.getStylesheets().add(this.getClass().getResource("/styleVue.css").toString());
+		actions();
+	}
+
+	/**
+	 * 
+	 * @return Le Pane qui représente l'espace d'affichage des particules
+	 */
+	public Pane getBoite() {
+		return boite;
+	}
+
+	/**
+	 * Attribution des actions pour {@link nbrRand_TF} et génération des
+	 * RadioButtons Rebondissante et Mangeuse
+	 */
+	private void actions() {
+		addListenerNbrRand();
+		setClickAction();
+		toggleBtnsGen();
+	}
+
+	public Label getVolume_L() {
+		return volume_L;
+	}
+
+	public Label getVitesse_L() {
+		return vitesse_L;
+	}
+
+	public Label getAngle_L() {
+		return angle_L;
+	}
+
+	public Slider getVitesse_Slr() {
+		return vitesse_Slr;
+	}
+
+	public Slider getAngle_Slr() {
+		return angle_Slr;
+	}
+
+	public Label getRayon_L() {
+		return rayon_L;
+	}
+
+	public Slider getRayon_Slr() {
+		return rayon_Slr;
+	}
+
+	public Slider getMusique_Slr() {
+		return musique_Slr;
+	}
+
+	public ColorPicker getCouleur_CP() {
+		return couleur_CP;
+	}
+
+	public RadioButton getRebond_RB() {
+		return rebond_RB;
+	}
+
+	public Label getNbrPart_L() {
+		return nbrPart_L;
+	}
+
+	public void toggleBtnsGen() {
+		typePart_TG = new ToggleGroup();
+		rebond_RB.setToggleGroup(typePart_TG);
+		mangeuse_RB.setToggleGroup(typePart_TG);
+
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	public Shape addShape() {
+		Circle cercle = new Circle((ctrlCol.getList().getListParticules().get(0).getRayon()),
+				(ctrlCol.getList().getListParticules().get(0).getCouleur()));
+		boite.getChildren().add(cercle);
+		cercle.layoutXProperty().bind(ctrlCol.getList().getListParticules().get(0).getPosX());
+		cercle.layoutYProperty().bind(ctrlCol.getList().getListParticules().get(0).getPosY());
+		return cercle;
+	}
+
+	public void setClickAction() {
+		boite.setOnMouseClicked(event -> {
+			ctrlCol.getList().genPart(new Point((int) event.getX(), (int) event.getY()));
+		});
+
+	}
+
+	public void handleGen(Event event) {
+		if ((getNbrRand() > 0))
+			if ((event instanceof KeyEvent && ((KeyEvent) event).getCode().equals(KeyCode.ENTER))
+					|| event instanceof ActionEvent)
+				ctrlCol.getList().genererRandPart(getNbrRand(), rebond_RB.isSelected());
+	}
+
+	public void handleReini(ActionEvent event) {
+		ctrlCol.getList().reiniPart();
+	}
+
+	public void handleQuit(ActionEvent event) {
+		Platform.exit();
+	}
+
+	public void handleEffet(ActionEvent event) {
+		ctrlCol.getList().setEffet(((CheckBox) event.getSource()).isSelected());
+	}
+
+	public void handleMute(ActionEvent event) {
+		ctrlCol.clickMute();
+	}
+
+	public void handleMusique(ActionEvent event) {
+		ctrlCol.gogoMusique();
+	}
+
+	/**
+	 * set la couleur de la prochaine particule a creer
+	 */
+	@FXML
+	public void handleCouleur() {
+		ctrlCol.setDataCouleur();
+	}
+
+	public int getNbrRand() {
+		return nbrRand_TF.getText().equals("") ? 0 : Integer.parseInt(nbrRand_TF.getText());
+	}
+
+	private void addListenerNbrRand() {
+		nbrRand_TF.addEventHandler(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				switch (event.getCharacter()) {
+					case "0":
+					case "1":
+					case "2":
+					case "3":
+					case "4":
+					case "5":
+					case "6":
+					case "7":
+					case "8":
+					case "9":
+					case "U+0008":
+					case "U+23CE":
+						break;
+					default:
+						event.consume();
+						break;
+				}
+
+			}
+
+		});
+
+	}
+
+}

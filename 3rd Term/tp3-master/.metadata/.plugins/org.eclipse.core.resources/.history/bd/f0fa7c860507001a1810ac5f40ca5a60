@@ -1,0 +1,224 @@
+package vue;
+
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
+import java.awt.Point;
+import java.io.IOException;
+import ctrl.Ctrl;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+
+public class Collision_Vue {
+
+	@FXML
+	private Label nbrPart_L, vitesse_L, angle_L, rayon_L, volume_L;
+	@FXML
+	private ColorPicker couleur_CP;
+	@FXML
+	private CheckBox effet_CB;
+	@FXML
+	private RadioButton rebond_RB;
+	@FXML
+	private RadioButton mangeuse_RB;
+	@FXML
+	private ToggleButton mute_TB;
+	@FXML
+	private Button generer_Btn, reini_Btn, quit_Btn, musique_Btn;
+	@FXML
+	private Slider vitesse_Slr, angle_Slr, rayon_Slr, musique_Slr;
+	@FXML
+	private TextField nbrRand_TF;
+
+	private ToggleGroup typePart_TG;
+	@FXML
+	private Pane boite;
+
+	private Scene scene;
+
+	private BorderPane root;
+
+	private Ctrl ctrlCol;
+
+	public static final int[] dimensionsBoite = { 1000, 426 };
+
+	public Collision_Vue(Ctrl pCtrl) throws IOException {
+		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/vue/collision_fxml.fxml"));
+
+		ctrlCol = pCtrl;
+
+		loader.setController(this);
+		root = loader.load();
+		scene = new Scene(root);
+
+		actions();
+	}
+
+	public Pane getBoite() {
+		return boite;
+	}
+
+	private void actions() {
+		addListenerNbrRand();
+		setClickAction();
+		toggleBtnsGen();
+	}
+
+	public Label getVolume_L() {
+		return volume_L;
+	}
+
+	public Label getVitesse_L() {
+		return vitesse_L;
+	}
+
+	public Label getAngle_L() {
+		return angle_L;
+	}
+
+	public Slider getVitesse_Slr() {
+		return vitesse_Slr;
+	}
+
+	public Slider getAngle_Slr() {
+		return angle_Slr;
+	}
+
+	public Label getRayon_L() {
+		return rayon_L;
+	}
+
+	public Slider getRayon_Slr() {
+		return rayon_Slr;
+	}
+
+	public Slider getMusique_Slr() {
+		return musique_Slr;
+	}
+
+	public ColorPicker getCouleur_CP() {
+		return couleur_CP;
+	}
+
+	public RadioButton getRebond_RB() {
+		return rebond_RB;
+	}
+
+	public Label getNbrPart_L() {
+		return nbrPart_L;
+	}
+
+	public void toggleBtnsGen() {
+		typePart_TG = new ToggleGroup();
+		rebond_RB.setToggleGroup(typePart_TG);
+		mangeuse_RB.setToggleGroup(typePart_TG);
+
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	public Shape addShape() {
+		Circle cercle = new Circle((ctrlCol.getListParticules().get(0).getRayon()),
+				(ctrlCol.getListParticules().get(0).getCouleur()));
+		boite.getChildren().add(cercle);
+		cercle.layoutXProperty().bind(ctrlCol.getListParticules().get(0).getPosX());
+		cercle.layoutYProperty().bind(ctrlCol.getListParticules().get(0).getPosY());
+		return cercle;
+	}
+
+	public void setClickAction() {
+		boite.setOnMouseClicked(event -> {
+			ctrlCol.genPart(new Point((int) event.getX(), (int) event.getY()));
+		});
+
+	}
+
+	public void handleGen(Event event) {
+		try {
+			if ((getNbrRand() <= 300 && getNbrRand() > 0))
+				if ((event instanceof KeyEvent && ((KeyEvent) event).getCode().equals(KeyCode.ENTER))
+						|| event instanceof ActionEvent)
+					ctrlCol.genererRandPart(getNbrRand(), rebond_RB.isSelected());
+		} catch (NumberFormatException ex) {
+
+		}
+	}
+
+	public void handleReini(ActionEvent event) {
+		ctrlCol.reiniPart();
+	}
+
+	public void handleQuit(ActionEvent event) {
+		Platform.exit();
+	}
+
+	public void handleMute(ActionEvent event) {
+
+	}
+
+	public void handleMusique(ActionEvent event) {
+		ctrlCol.changeVolume();
+	}
+
+	/**
+	 * set la couleur de la prochaine particule a creer
+	 */
+	@FXML
+	public void handleCouleur() {
+		ctrlCol.setDataCouleur();
+	}
+
+	public int getNbrRand() {
+		return Integer.parseInt(nbrRand_TF.getText());
+	}
+
+	private void addListenerNbrRand() {
+		nbrRand_TF.addEventHandler(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				switch (event.getCharacter()) {
+					case "0":
+					case "1":
+					case "2":
+					case "3":
+					case "4":
+					case "5":
+					case "6":
+					case "7":
+					case "8":
+					case "9":
+					case "U+0008":
+					case "U+23CE":
+						break;
+					default:
+						event.consume();
+						break;
+				}
+
+			}
+
+		});
+
+	}
+
+}

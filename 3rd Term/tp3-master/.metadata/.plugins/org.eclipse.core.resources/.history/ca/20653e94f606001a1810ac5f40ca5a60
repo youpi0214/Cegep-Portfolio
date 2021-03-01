@@ -1,0 +1,82 @@
+package mouvement;
+
+import java.awt.Point;
+
+import ctrl.Ctrl;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
+import modele.Particule;
+import vue.Collision_Vue;
+
+public class Deplacement extends Task<Void> {
+
+	private Particule particule;
+	private static final int NBR_RAFRAICHISSEMENTS = 5;
+	private Point pointTemp;
+
+	public Deplacement(Particule pParticule) {
+		setParticule(pParticule);
+	}
+
+	public Particule getParticule() {
+		return particule;
+	}
+
+	public void setParticule(Particule pParticule) {
+		particule = pParticule;
+	}
+
+	private boolean[] verifierMur() {
+		pointTemp = new Point();
+		pointTemp.setLocation(getParticule().getPosX().getValue() + getParticule().getVitesse()[0],
+				getParticule().getPosY().getValue() + getParticule().getVitesse()[1]);
+		boolean[] estBonDep = { true, true };
+		if (pointTemp.getX() >= Collision_Vue.dimensionsBoite[0] - getParticule().getRayon() || pointTemp.getX() <= 0)
+			estBonDep[0] = false;
+		if (pointTemp.getY() >= Collision_Vue.dimensionsBoite[1] - getParticule().getRayon() || pointTemp.getY() <= 0)
+			estBonDep[1] = false;
+		return estBonDep;
+	}
+
+	private boolean verifierAutrePart() {
+		return true;
+	}
+
+	private void deplacer() {
+		boolean[] pasMur = verifierMur();
+		double[] newVitesse = { getParticule().getVitesse()[0], getParticule().getVitesse()[1] };
+		if (pasMur[0] && pasMur[1]) {
+			getParticule().setPosition(pointTemp);
+		} else if (pasMur[0]) {
+			newVitesse[0] *= -1;
+			getParticule().setVecVitesse(pVitesse);
+		}
+
+	}
+
+	private void collision() {
+
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		final Timeline loop = new Timeline(
+				new KeyFrame(Duration.millis(NBR_RAFRAICHISSEMENTS), new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						deplacer();
+
+					}
+
+				}));
+		loop.setCycleCount(Timeline.INDEFINITE);
+		loop.play();
+
+		return null;
+	}
+}

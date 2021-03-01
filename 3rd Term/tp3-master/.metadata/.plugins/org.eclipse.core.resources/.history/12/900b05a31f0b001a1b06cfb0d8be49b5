@@ -1,0 +1,43 @@
+package modele;
+
+import java.awt.Point;
+import java.util.Set;
+
+import javafx.scene.paint.Color;
+
+public class Mangeuse extends Particule {
+
+	// Angles du cercle trigo
+	private final double[] ANGLES_MINI_BALLES = { 0, Math.PI / 6, Math.PI / 4, Math.PI / 3, Math.PI / 2,
+			2 * Math.PI / 3, 3 * Math.PI / 4, 5 * Math.PI / 6, Math.PI, 7 * Math.PI / 6, 5 * Math.PI / 4,
+			4 * Math.PI / 3, 3 * Math.PI / 2, 5 * Math.PI / 3, 7 * Math.PI / 4, 11 * Math.PI / 6 };
+	private final int NBR_BALLES_EXPLOSION = ANGLES_MINI_BALLES.length;
+
+	public Mangeuse(Point pPos, double pVitesse, double pAngleDep, double pRayon, Color pCouleur, Point pZone,
+			RegroupementParticules environementPart) {
+		super(pPos, pVitesse, pAngleDep, pRayon, pCouleur, pZone, environementPart);
+	}
+
+	@Override
+	public void handleCollision(Particule pPart) {
+		if (pPart instanceof Rebondissante && getRayon().getValue() > pPart.getRayon().getValue()) {
+			manger(pPart);
+		} else
+			rebond(pPart);
+	}
+
+	private void manger(Particule pPart) {
+		System.out.println(getRayon().getValue());
+		setRayon(getRayon().getValue() + 1);
+		if (getRayon().getValue() > 20)
+			explose();
+		System.out.println(getRayon().getValue());
+		environementPart.enleverPart(pPart);
+	}
+
+	private void explose() {
+		Color couleur = getCouleur();
+		for(int i =0;i<)
+	}
+
+}

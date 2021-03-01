@@ -1,0 +1,120 @@
+package musique;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.function.Consumer;
+
+import ctrl.Data;
+import javafx.concurrent.Task;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+
+public class BoomBox implements Consumer<Number> {
+
+//	private Media cassette;
+	private MediaView mediaView;
+	private MediaPlayer monTropGrandWalkMan;
+	private FileChooser checkMoiCaLaPlaylist;
+	private ArrayList<File> playlist;
+	private double volumeSauvegarde, currentVolume;
+	private Data data;
+
+	public BoomBox(double pVolume) {
+		data = new Data();
+		getDirectory();
+		rentreMoiDontTaCassette();
+		currentVolume = pVolume;
+	}
+
+	public void play() {
+		if (monTropGrandWalkMan != null) {
+			mediaView = new MediaView();
+			mediaView.setMediaPlayer(monTropGrandWalkMan);
+//		mediaView.getMediaPlayer().setVolume(data.getVolume().divide(100).getValue());
+			mediaView.getMediaPlayer().volumeProperty().bind(data.getVolume().getValue().doubleValue());
+			mediaView.getMediaPlayer().setVolume(currentVolume);
+			mediaView.getMediaPlayer().play();
+		}
+	}
+
+	/**
+	 * Ajuste le volume selon le paramètre. Reçoit une valeur de volume entre 0 et
+	 * 100.
+	 * 
+	 * @param volume Le volume voulu
+	 */
+	public void setVolume(double volume) {
+		if (volume >= 0 && volume <= 100) {
+			mediaView.getMediaPlayer().setVolume(volume / 100);
+
+//			monTropGrandWalkMan.setVolume(volume / 100);
+		}
+	}
+
+	public MediaView getMediaView() {
+		return mediaView;
+	}
+
+	public void mute() {
+		if (volumeSauvegarde == 0) {
+			volumeSauvegarde = mediaView.getMediaPlayer().getVolume();
+			setVolume(0);
+		} else {
+			setVolume(volumeSauvegarde * 100);
+			volumeSauvegarde = 0;
+		}
+	}
+
+	private void rentreMoiDontTaCassette() {
+		if (playlist != null)
+			for (int i = 0; i < playlist.size(); i++) {
+				MediaPlayer player = new MediaPlayer(new Media(playlist.get(i).toURI().toString()));
+				MediaPlayer nextPlayer = new MediaPlayer(
+						new Media(playlist.get((i + 1) % playlist.size()).toURI().toString()));
+				if (i == 0)
+					monTropGrandWalkMan = player;
+				player.setOnEndOfMedia(new Runnable() {
+
+					@Override
+					public void run() {
+						mediaView.setMediaPlayer(nextPlayer);
+						nextPlayer.play();
+					}
+				});
+			}
+	}
+
+	private void creerPlaylist(File directory) {
+		if (directory != null) {
+			playlist = new ArrayList<File>();
+			File[] binDeTri;
+
+			if (directory.isDirectory()) {
+				binDeTri = directory.listFiles();
+				for (int i = 0; i < binDeTri.length; i++) {
+					if (binDeTri[i].getName().endsWith(".wav") || binDeTri[i].getName().endsWith(".mp3")) {
+						playlist.add(binDeTri[i]);
+					}
+				}
+			} else {
+				creerPlaylist(directory.getParentFile());
+			}
+		}
+	}
+
+	private void getDirectory() {
+		checkMoiCaLaPlaylist = new FileChooser();
+		checkMoiCaLaPlaylist.getExtensionFilters().add(new ExtensionFilter("Music files(*.mp3)", "*.mp3", "*.wav"));
+		File dir = checkMoiCaLaPlaylist.showOpenDialog(null);
+		creerPlaylist(dir);
+	}
+
+	@Override
+	public void accept(Number volume) {
+		play();
+	}
+
+}

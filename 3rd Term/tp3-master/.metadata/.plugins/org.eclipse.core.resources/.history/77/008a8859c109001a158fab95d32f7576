@@ -1,0 +1,120 @@
+package mouvement;
+
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Set;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
+import javafx.util.Duration;
+import modele.Particule;
+
+public class Deplacement extends Task<Void> {
+
+	private Particule particule;
+	private static final int NBR_RAFRAICHISSEMENTS = 5;
+	private Point pointTemp;
+	Set<Particule> environementPart;
+	private boolean willDie = false;
+
+	public Deplacement(Particule pParticule, Set<Particule> pEnvironementPart) {
+		particule = pParticule;
+		environementPart = pEnvironementPart;
+	}
+
+	private boolean[] verifierMur() {
+		boolean[] estBonDep = { true, true };
+		if (pointTemp.getX() + 2 >= particule.getZoneDep().getX() - particule.getRayon()
+				|| pointTemp.getX() - particule.getRayon() <= 0)
+			estBonDep[0] = false;
+
+		if (pointTemp.getY() + 2 >= particule.getZoneDep().getY() - particule.getRayon()
+				|| pointTemp.getY() - particule.getRayon() <= 0)
+			estBonDep[1] = false;
+
+		return estBonDep;
+	}
+
+	private ArrayList<Particule> verifierAutrePart() {
+		Particule temp = null;
+		ArrayList<Particule> tempArr = new ArrayList<>();
+		if (environementPart != null && environementPart.size() > 0)
+			for (Particule part : environementPart) {
+
+				if (!part.equals(particule)) {
+					double minDistance = (particule.getRayon() + part.getRayon());
+					Point2D temp2Dthis = new Point2D(particule.getPosition().getX() + particule.getVitesse()[0],
+							particule.getPosition().getY() - particule.getVitesse()[1]);
+					Point2D temp2Dthat = new Point2D(part.getPosition().getX() + part.getVitesse()[0],
+							part.getPosition().getY() - part.getVitesse()[1]);
+//							particule.getPosition().distance(part.getPosition())
+					if (temp2Dthis.distance(temp2Dthat) <= minDistance + 2) {
+						// TODO
+//						System.out.println("hi");
+//						System.out.println("part " + part.getPosX().doubleValue() + part.getRayon());
+//						System.out.println("particule " + particule.getPosX().doubleValue() + particule.getRayon());
+						tempArr.add(part);
+//						temp = part;
+//						break;
+					}
+				}
+			}
+
+		return tempArr;
+	}
+
+	private void deplacer() {
+		pointTemp = new Point();
+
+		pointTemp.setLocation(particule.getPosX().getValue() + particule.getVitesse()[0],
+				particule.getPosY().getValue() - particule.getVitesse()[1]);
+
+		boolean[] pasMur = verifierMur();
+		Particule colliPart = verifierAutrePart();
+
+		double[] newVitesse = { particule.getVitesse()[0], particule.getVitesse()[1] };
+		try {
+			wait(1500);
+		} catch (Exception e) {
+
+		}
+		if (!pasMur[0] || !pasMur[1]) {
+			particule.collisionMur(pasMur, newVitesse);
+		} else if (colliPart != null) {
+			System.out.println("handleCollision");
+			particule.handleCollision(colliPart);
+		} else {
+			particule.setPosition(pointTemp);
+		}
+	}
+
+	public void die() {
+		willDie = true;
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		final Timeline loop = new Timeline(
+				new KeyFrame(Duration.millis(NBR_RAFRAICHISSEMENTS), new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						if (willDie)
+							return;
+						deplacer();
+						System.out.println("skrrt");
+
+					}
+
+				}));
+		loop.setCycleCount(Timeline.INDEFINITE);
+		loop.play();
+
+		return null;
+	}
+
+}

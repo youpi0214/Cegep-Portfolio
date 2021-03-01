@@ -1,0 +1,102 @@
+package musique;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import javafx.concurrent.Task;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.DirectoryChooser;
+
+public class BoomBox extends Task<Void> {
+
+	private Media cassette;
+	private MediaPlayer monTrosGrandWalkMan;
+	private DirectoryChooser checkMoiCaUnePlaylist;
+	private ArrayList<File> playlist;
+	private int numDeChanson = 0;
+	private double volumeSauvegarde;
+	boolean isStop = false;
+
+	public BoomBox() {
+		creerPlaylist(getDirectory());
+		rentreMoiDontTaCassette();
+	}
+
+	public void peseSuPlayBig() {
+		play();
+		while (monTrosGrandWalkMan.getStatus().equals(MediaPlayer.Status.PLAYING) || !isStop) {
+		}
+		numDeChanson++;
+		rentreMoiDontTaCassette();
+		peseSuPlayBig();
+	}
+
+	public void play() {
+
+	}
+
+	public void pause() {
+
+	}
+
+	public void next() {
+
+	}
+
+	/**
+	 * Ajuste le volume selon le paramètre. Reçoit une valeur de volume entre 0 et
+	 * 100.
+	 * 
+	 * @param volume Le volume voulu
+	 */
+	public void setVolume(double volume) {
+		if (volume >= 0 && volume <= 100) {
+			monTrosGrandWalkMan.setVolume(volume / 100);
+		}
+	}
+
+	public void mute() {
+		if (volumeSauvegarde == 0) {
+			volumeSauvegarde = monTrosGrandWalkMan.getVolume();
+			setVolume(0);
+		} else {
+			setVolume(volumeSauvegarde * 100);
+			volumeSauvegarde = 0;
+		}
+	}
+
+	private void rentreMoiDontTaCassette() {
+		cassette = new Media(playlist.get(numDeChanson).getAbsolutePath());
+		monTrosGrandWalkMan = new MediaPlayer(cassette);
+	}
+
+	private void changeMoiDontDeCassette() {
+		cassette = new Media(playlist.get(numDeChanson).getAbsolutePath());
+	}
+
+	private void creerPlaylist(File directory) {
+		playlist = new ArrayList<File>();
+		File[] binDeTri = directory.listFiles();
+		if (directory.isDirectory()) {
+			for (int i = 0; i < binDeTri.length; i++) {
+				if (binDeTri[i].getName().endsWith(".wav") || binDeTri[i].getName().endsWith(".mp3")) {
+					playlist.add(binDeTri[i]);
+				}
+			}
+		}
+	}
+
+	private File getDirectory() {
+		checkMoiCaUnePlaylist = new DirectoryChooser();
+		checkMoiCaUnePlaylist.setTitle("Play me da beat");
+		return checkMoiCaUnePlaylist.showDialog(null);
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		BoomBox bb = new BoomBox();
+		return null;
+	}
+
+}

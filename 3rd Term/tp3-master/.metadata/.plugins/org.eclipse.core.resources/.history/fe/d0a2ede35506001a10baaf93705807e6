@@ -1,0 +1,121 @@
+package modele;
+
+import java.awt.Point;
+
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.paint.Color;
+import mouvement.Deplacement;
+
+public abstract class Particule {
+
+	private Color couleur;
+	private double angleDep, rayon;
+	private double[] vitesse;
+	private double modVitesse;
+	private DoubleProperty positionX, positionY;
+	private Deplacement mouvement;
+
+	public Particule(Point pPos, double pVitesse, double pAngleDep, double pRayon, Color pCouleur) {
+		positionX = new SimpleDoubleProperty();
+		positionY = new SimpleDoubleProperty();
+		setPosition(pPos);
+		setAngleDep(pAngleDep);
+		setVitesse(pVitesse);
+		setRayon(pRayon);
+		setCouleur(pCouleur);
+		vitesse = new double[2];
+		setVecVitesse();
+		mouvement = new Deplacement(this);
+		Thread t = new Thread(mouvement);
+		t.start();
+	}
+
+//	private double calculerAngle() {
+//		return (double) Math.toDegrees(Math.asin(getVitesse()[1] / getVitesse()[0]));
+//	}
+
+	// TODO a corriger et diviser
+	// private double[] calculerVitesse(Particule pPart) {
+	// double[] f = {
+	// (((getRayon() - pPart.getRayon()) / (getRayon() + pPart.getRayon()))
+	// * (float) ((Math.cos(getAngleDep()) * getModuleVitesse())
+	// - (Math.cos(pPart.getAngleDep()) * pPart.getModuleVitesse()))
+	// + (((2 * pPart.getRayon()) / (getRayon() + pPart.getRayon())
+	// * ((float) (Math.cos(pPart.getAngleDep()) * getModuleVitesse()))))),
+	// (((getRayon() - pPart.getRayon()) / (getRayon() + pPart.getRayon()))
+	// * ((float) (Math.sin(getAngleDep()) * getModuleVitesse()) + (((2 *
+	// pPart.getRayon())
+	// / (getRayon() + pPart.getRayon()) * ((Math.sin(getAngleDep()) *
+	// getModuleVitesse())
+	// - (Math.sin(pPart.getAngleDep()) * pPart.getModuleVitesse())))))) };
+	// return f;
+	// }
+
+	public Color getCouleur() {
+		return couleur;
+	}
+
+	public void setCouleur(Color pCouleur) {
+		couleur = pCouleur;
+	}
+
+	public double[] getVitesse() {
+		return vitesse;
+	}
+
+	public double getModuleVitesse() {
+		return (double) Math.sqrt(Math.pow((double) vitesse[0], 2) + Math.pow((double) vitesse[1], 2));
+	}
+
+	public void setVitesse(double pVitesse) {
+		modVitesse = pVitesse;
+	}
+
+//TODO
+	public void setVecVitesse() {
+		vitesse[0] = Math.cos(Math.toRadians(angleDep)) * modVitesse;
+		vitesse[1] = Math.sin(Math.toRadians(angleDep)) * modVitesse;
+		// TODO
+//		System.out.println(vitesse[0] + " " + vitesse[1]);
+	}
+
+	public double getAngleDep() {
+		return angleDep;
+	}
+
+	public void setAngleDep(double pAngleDep) {
+		angleDep = pAngleDep;
+	}
+
+	public double getRayon() {
+		return rayon;
+	}
+
+	public void setRayon(double pRayon) {
+		rayon = pRayon;
+	}
+
+	public DoubleProperty getPosX() {
+		return positionX;
+	}
+
+	public DoubleProperty getPosY() {
+		return positionY;
+	}
+
+	public void setPosition(Point pPosition) {
+		if (pPosition != null) {
+			positionX.setValue(pPosition.getX());
+			positionY.setValue(pPosition.getY());
+		}
+
+	}
+
+	public void rebond(Particule pPart) {
+		// setVitesse(calculerVitesse(pPart));
+		setAngleDep(calculerAngle());
+	}
+
+	public abstract void handleCollision(Particule pPart);
+}

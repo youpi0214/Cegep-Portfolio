@@ -1,0 +1,71 @@
+package mouvement;
+
+import java.awt.Point;
+
+import ctrl.Ctrl;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
+import modele.Particule;
+
+public class Deplacement implements Runnable {
+
+	private Particule particule;
+	private static final int NBR_RAFRAICHISSEMENTS = 8;
+
+	public Deplacement(Particule pParticule) {
+		setParticule(pParticule);
+	}
+
+	public Particule getParticule() {
+		return particule;
+	}
+
+	public void setParticule(Particule pParticule) {
+		particule = pParticule;
+	}
+
+	private boolean verifierMur() {
+		return true;
+	}
+
+	private boolean verifierAutrePart() {
+		return true;
+	}
+
+	private void deplacer() {
+		Point pointTemp = new Point();
+//		pointTemp.setLocation(
+//				getParticule().getPosX().getValue()
+//						+ getParticule().getVitesse()[0],
+//				getParticule().getPosY().getValue()
+//						- getParticule().getVitesse()[1]);
+		pointTemp.setLocation(getParticule().getPosX().getValue() + getParticule().getVitesse()[0],
+				getParticule().getPosX().getValue());
+
+		getParticule().setPosition(pointTemp);
+	}
+
+	private void collision() {
+
+	}
+
+	@Override
+	public void run() {
+		final Timeline loop = new Timeline(
+				new KeyFrame(Duration.millis(NBR_RAFRAICHISSEMENTS), new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						deplacer();
+
+					}
+
+				}));
+		loop.setCycleCount(Timeline.INDEFINITE);
+		loop.play();
+
+	}
+}

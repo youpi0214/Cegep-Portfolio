@@ -1,0 +1,266 @@
+package ctrl;
+
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Shape;
+import modele.Mangeuse;
+import modele.Particule;
+import modele.Rebondissante;
+import musique.BoomBox;
+import vue.Collision_Vue;
+
+/**
+ * Classe de controle du collisionneur Gère les évènements liés aux composantes
+ * de la vue et s'occupe de lier les particules aux éléments visuels de lu GUI
+ * 
+ * @author Nicolas Boulet et Yannick André Ouamba
+ *
+ */
+public class Ctrl {
+
+	/**
+	 * Constante pour le maximum de particules à générer à la fois en utilisant la
+	 * fonctionnalité de génération aléatoire.
+	 */
+	public static final int NBR_PART_MAX = 300;
+	/**
+	 * Hashtable qui gère le lien entre les particules et leurs représentations
+	 * graphiques.
+	 */
+	private Hashtable<Particule, Shape> lienParticules;
+	/**
+	 * ArrayList qui contient toutes les particules affichées. Se modifie au même
+	 * rythme que lienParticules
+	 */
+	private ArrayList<Particule> listParticules;
+	/**
+	 * Lien entre les valeurs selectionnées dans le GUI et cette classe.
+	 */
+	private Data data;
+	/**
+	 * Référence au GUI, permet de gérer les contraintes reliés à ce dernier.
+	 */
+	private Collision_Vue vue;
+	/**
+	 * Compteur du nombre de particules affichées dans le GUI.
+	 */
+	private SimpleIntegerProperty nbrePart_Property;
+
+	/**
+	 * Point représentant le point le plus éloigné de l'origine de la zone
+	 * d'affichage des particules.
+	 */
+	private Point dimensionBoite;
+	/**
+	 * Objet servant à gérer la musique dans l'application.
+	 */
+	private BoomBox musique;
+
+	/**
+	 * Constructeur
+	 * 
+	 * Instantie les deux listes ainsi que le lien vers les données selectionnées
+	 * par l'utilisateur. Instancie les attributs non-instanciés.
+	 * 
+	 * @throws Exception déclaré si le fichier FXML est non-trouvé
+	 */
+	public Ctrl() throws Exception {
+		data = new Data();
+		listParticules = new ArrayList<>();
+		lienParticules = new Hashtable<>();
+		vue = new Collision_Vue(this);
+
+		// utiliser plus tard pour la verfier les colisions avec les parois
+		dimensionBoite = new Point();
+		dimensionBoite.setLocation(vue.getBoite().getPrefWidth(), vue.getBoite().getPrefHeight());
+		dimensionBoite.setLocation(vue.getBoite().getPrefWidth(), vue.getBoite().getPrefHeight());
+
+		nbrePart_Property = new SimpleIntegerProperty(0);
+
+		genLabelBindings();
+		genDataBindings();
+	}
+
+	/**
+	 * Modifie la DoubleProperty nbrePart_Property pour qu'elle concorde avec le
+	 * nombre de particules dans la liste de particules.
+	 */
+	private void updateNbrPart() {
+		nbrePart_Property.set(lienParticules.size());
+	}
+
+	/**
+	 * Méthode utilisée par le GUI pour modifier la couleur dans data à chaque fois
+	 * qu'une nouvelle couleur est selectionnée
+	 */
+	public void setDataCouleur() {
+		data.setCouleur(vue.getCouleur_CP().getValue());
+	}
+
+	/**
+	 * Change l'effet sur les balles selon si la case est cochée ou non.
+	 * 
+	 * @param estCoche Détermine si la case est cochée ou non.
+	 */
+	public void setEffet(boolean estCoche) {
+		for (Shape s : lienParticules.values()) {
+			if (estCoche)
+				s.getStyleClass().add("effet");
+			else
+				s.getStyleClass().remove("effet");
+		}
+	}
+
+	/**
+	 * Crée un objet musique et permet de choisir le dossier de musique voulu. Joue
+	 * la musique automatiquement
+	 */
+	public void gogoMusique() {
+		if (musique == null) {
+			musique = new BoomBox(data.getVolume().getValue());
+//			musique.setVolume(100);
+			Thread t = new Thread(musique);
+			t.setDaemon(true);
+			t.start();
+		} else {
+			musique.getMediaView().setMediaPlayer(null);
+			musique = null;
+			gogoMusique();
+		}
+	}
+
+	/**
+	 * Donne la valeur minimale de volume au Slider au à l'objet qui joue la musique
+	 * si le bouton est activé. S'il est désactivé le volume est rétabli au volume
+	 * précédant.
+	 */
+	public void clickMute() {
+		try {
+			musique.mute();
+			vue.getMusique_Slr().setValue(musique.getMediaView().getMediaPlayer().getVolume());
+		} catch (Exception e) {
+
+		}
+	}
+
+	/**
+	 * Crée le lien entre le data et chacun des Slider dans le GUI. Utilise aussi un
+	 * ChangeListener pour changer le volume de la musique en temps réel
+	 */
+	private void genDataBindings() {
+		data.getAngle().bind(vue.getAngle_Slr().valueProperty());
+		data.getRayon().bind(vue.getRayon_Slr().valueProperty());
+		data.getVitesse().bind(vue.getVitesse_Slr().valueProperty());
+		data.getVolume().bind(vue.getMusique_Slr().valueProperty());
+//		TODO ENLEVER CETTE METHODE
+		vue.getMusique_Slr().valueProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				if (musique != null)
+					musique.setVolume(vue.getMusique_Slr().valueProperty().getValue().doubleValue());
+
+			}
+		});
+		// set a true si rebondissante et a false si mangeuse est selectionnee
+		data.isEstRebond().bind(vue.getRebond_RB().selectedProperty());
+
+	}
+
+	/**
+	 * Crée le lien entre les Slider et les Label, permetant ainsi de voir avec
+	 * précision la valeur selectionné par ces derniers.
+	 */
+	private void genLabelBindings() {
+		// bind le Label du rayon et son slider
+		vue.getRayon_L().textProperty().bind(vue.getRayon_Slr().valueProperty().asString("%4.1f"));
+		// bind le Label de l'angle et son slider
+		vue.getAngle_L().textProperty().bind(vue.getAngle_Slr().valueProperty().asString("%4.1f"));
+		// bind le Label de la vitesse et son slider
+		vue.getVitesse_L().textProperty().bind(vue.getVitesse_Slr().valueProperty().asString("%4.1f"));
+
+		vue.getVolume_L().textProperty().bind(vue.getMusique_Slr().valueProperty().multiply(100).asString("%1.1f"));
+
+		vue.getNbrPart_L().textProperty().bind(nbrePart_Property.asString());
+	}
+
+//	public void changeVolume() {
+//		setVolume(vue.getMusique_Slr().valueProperty().multiply(100).doubleValue());
+//	}
+
+	public List<Particule> getListParticules() {
+		return listParticules;
+	}
+
+	public void genPart(Point position) {
+		if (data.isEstRebond().getValue())
+			ajouterPart(new Rebondissante(position, data.getVitesse().getValue(), data.getAngle().getValue(),
+					data.getRayon().getValue(), data.getCouleur(), dimensionBoite, lienParticules.keySet()));
+		else
+			ajouterPart(new Mangeuse(position, data.getVitesse().getValue(), data.getAngle().getValue(),
+					data.getRayon().getValue(), data.getCouleur(), dimensionBoite, lienParticules.keySet()));
+
+		// change le nbre
+		updateNbrPart();
+	}
+
+	public void reiniPart() {
+		lienParticules.clear();
+		listParticules.clear();
+		vue.getBoite().getChildren().clear();
+		updateNbrPart();
+	}
+
+	public void ajouterPart(Particule pPart) {
+		listParticules.add(0, pPart);
+		Point pointTemp = new Point();
+		pointTemp.setLocation(pPart.getPosX().getValue(), pPart.getPosY().getValue());
+		lienParticules.put(pPart, vue.addShape());
+	}
+
+	public void enleverPart(Particule pPart) {
+		vue.getBoite().getChildren().remove(lienParticules.get(pPart));
+		lienParticules.remove(pPart);
+		listParticules.remove(pPart);
+	}
+
+	public void genererRandPart(int nbr, boolean estRebond) {
+		double vit, ang, ray;
+		Point pos;
+		Color col;
+		if (vue.getNbrRand() <= NBR_PART_MAX)
+			for (int i = 0; i < nbr; i++) {
+				// g�n�re au hasard des valeurs compris dans l'ensemble des
+				// valeurs
+				// des slider
+				vit = getRandDouble(vue.getVitesse_Slr().getMin(), vue.getVitesse_Slr().getMax());
+				ang = getRandDouble(vue.getAngle_Slr().getMin(), vue.getAngle_Slr().getMax());
+				ray = getRandDouble(vue.getRayon_Slr().getMin(), vue.getRayon_Slr().getMax());
+				col = new Color(getRandDouble(0, 1), getRandDouble(0, 1), getRandDouble(0, 1), 1);
+
+				pos = new Point();
+				pos.setLocation(getRandDouble(ray, dimensionBoite.getX() - ray),
+						getRandDouble(ray, dimensionBoite.getY() - ray));
+				if (estRebond)
+					ajouterPart(new Rebondissante(pos, vit, ang, ray, col, dimensionBoite, lienParticules.keySet()));
+				else
+					ajouterPart(new Mangeuse(pos, vit, ang, ray, col, dimensionBoite, lienParticules.keySet()));
+				updateNbrPart();
+			}
+	}
+
+	public static double getRandDouble(double min, double max) {
+		return (Math.random() * (max - min)) + min;
+	}
+
+	public Collision_Vue getVue() {
+		return vue;
+	}
+}

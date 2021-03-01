@@ -1,0 +1,123 @@
+package mouvement;
+
+import java.awt.Point;
+import java.util.Hashtable;
+import java.util.Set;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.shape.Shape;
+import javafx.util.Duration;
+import modele.Particule;
+
+public class Deplacement extends Task<Void> {
+
+	private Particule particule;
+	private static final int NBR_RAFRAICHISSEMENTS = 5;
+	private Point pointTemp;
+	Set<Particule> environementPart;
+	double particuleX;
+	double particuleY;
+
+	public Deplacement(Particule pParticule, Set<Particule> pEnvironementPart) {
+		particule = pParticule;
+		environementPart = pEnvironementPart;
+		particuleX = particule.getPosX().doubleValue();
+		particuleY = particule.getPosX().doubleValue();
+	}
+
+	private boolean[] verifierMur() {
+		pointTemp = new Point();
+
+		pointTemp.setLocation(particule.getPosX().getValue() + particule.getVitesse()[0],
+				particule.getPosY().getValue() - particule.getVitesse()[1]);
+		boolean[] estBonDep = { true, true };
+		if (pointTemp.getX() >= particule.getZoneDep().getX() - particule.getRayon()
+				|| pointTemp.getX() - particule.getRayon() <= 0)
+			estBonDep[0] = false;
+
+		if (pointTemp.getY() >= particule.getZoneDep().getY() - particule.getRayon()
+				|| pointTemp.getY() - particule.getRayon() <= 0)
+			estBonDep[1] = false;
+
+		return estBonDep;
+	}
+
+	private Particule verifierAutrePart() {
+		Particule temp = null;
+		if (environementPart != null)
+			for (Particule part : environementPart) {
+				double distance;
+				if (part != particule) {
+					double partX2 = part.getPosX().doubleValue();
+					double partY2 = part.getPosY().doubleValue();
+					distance = pythagore(partX2, partY2);
+
+					if (distance <= (particule.getRayon() + part.getRayon())) {
+						temp = part;
+						break;
+					}
+				}
+			}
+
+		return temp;
+	}
+
+	/**
+	 * calcule la distance entre le centre de deux particule et la retourne
+	 * 
+	 * @return distance
+	 */
+	private double pythagore(double partX2, double partY2) {
+		// TODO j'ai separer juste pour que ca soit plus lisible pour toi.
+		// Faudra enlever le commentaire apres
+		double dCarre = (Math.pow(partX2, 2) - Math.pow(particuleX, 2))
+				+ (Math.pow(partY2, 2) - Math.pow(particuleY, 2));
+
+		double distance = Math.sqrt(dCarre);
+
+		return distance;
+	}
+
+	private void deplacer() {
+		boolean[] pasMur = verifierMur();
+		Particule colliPart = verifierAutrePart();
+
+		double[] newVitesse = { particule.getVitesse()[0], particule.getVitesse()[1] };
+
+		// on verifie le mur en premier avant les collision avec les autres
+		// billes s'il ya pas de collision alors c'est un bon deplacement TODO
+		// enlever ce commentaire plus tard
+		if (!pasMur[0] || !pasMur[1])
+			particule.collisionMur(pasMur, newVitesse);
+		else if (colliPart != null)
+			particule.handleCollision(colliPart);
+		else
+			particule.setPosition(pointTemp);
+	}
+
+	private void collisionPart() {
+
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		final Timeline loop = new Timeline(
+				new KeyFrame(Duration.millis(NBR_RAFRAICHISSEMENTS), new EventHandler<ActionEvent>() {
+
+					@Override
+					public void handle(ActionEvent event) {
+						deplacer();
+
+					}
+
+				}));
+		loop.setCycleCount(Timeline.INDEFINITE);
+		loop.play();
+
+		return null;
+	}
+}

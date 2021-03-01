@@ -1,0 +1,159 @@
+package vue;
+
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+
+import java.awt.Point;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import composantes.Mangeuse;
+import composantes.Particule;
+import composantes.Rebondissante;
+import ctrl.Ctrl;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+
+public class Collision_Vue {
+
+	@FXML
+	private Scene scene;
+	@FXML
+	private ArrayList<Shape> listCerles;
+	@FXML
+	private Label nbrPart_L, vitesse_L, angle_L, rayon_L, volume_L;
+	@FXML
+	private ColorPicker couleur_CP;
+	@FXML
+	private CheckBox effet_CB;
+	@FXML
+	private ToggleGroup typePart_TG;
+	@FXML
+	private RadioButton rebond_RB;
+	@FXML
+	private RadioButton mangeuse_RB;
+	@FXML
+	private ToggleButton mute_TB;
+	@FXML
+	private Button generer_Btn, reini_Btn, quit_Btn, musique_Btn;
+	@FXML
+	private Slider vitesse_Slr, angle_Slr, rayon_Slr, musique_Slr;
+	@FXML
+	private Pane boite;
+	private BorderPane root;
+	@FXML
+	private TextField nbrRand_TF;
+	private Ctrl CtrlCol;
+
+	public Collision_Vue(Ctrl pCtrl) throws IOException {
+		FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/vue/collision_fxml.fxml"));
+
+		CtrlCol = pCtrl;
+
+		loader.setController(CtrlCol);
+		root = loader.load();
+		boite = new Pane();
+		root.setCenter(boite);
+		boite.setStyle("-fx-background-color:blue");
+		boite.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				handleClick(event);
+			}
+
+		});
+		nbrPart_L.bind(Particule.getNbrParts());
+		scene = new Scene(root);
+		boite.getChildren().add(new Rectangle(100, 100));
+	}
+
+	public void toggleBtnsGen() {
+		typePart_TG = new ToggleGroup();
+////		rebond_RB = new RadioButton("Rebondissante");
+////		mangeuse_RB = new RadioButton("Mangeuse");
+//////		rebond_RB.setToggleGroup(typePart_TG);
+//////		mangeuse_RB.setToggleGroup(typePart_TG);
+		typePart_TG.getToggles().addAll(rebond_RB, mangeuse_RB);
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	public void handleClick(MouseEvent event) {
+		CtrlCol.genPart(new Point((int) event.getX(), (int) event.getY()));
+	}
+
+	public void handleGen(MouseEvent event) {
+		CtrlCol.genererRandPart(getNbrRand(), rebond_RB.isSelected());
+	}
+
+	public void handleReini(MouseEvent event) {
+		CtrlCol.reiniPart();
+	}
+
+	public void handleQuit(MouseEvent event) {
+
+	}
+
+	public void handleMute(MouseEvent event) {
+
+	}
+
+	public void handleMusique(MouseEvent event) {
+
+	}
+
+	public int getNbrRand() {
+		return Integer.parseInt(nbrRand_TF.getText());
+	}
+
+	private void addListenerNbrRand() {
+		nbrRand_TF.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+				switch (event.getCode()) {
+					case DIGIT0:
+					case DIGIT1:
+					case DIGIT2:
+					case DIGIT3:
+					case DIGIT4:
+					case DIGIT5:
+					case DIGIT6:
+					case DIGIT7:
+					case DIGIT8:
+					case DIGIT9:
+						break;
+					default:
+						event.consume();
+						break;
+				}
+
+			}
+
+		});
+	}
+}

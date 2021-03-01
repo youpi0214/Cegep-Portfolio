@@ -1,0 +1,39 @@
+package modele;
+
+import java.awt.Point;
+import java.util.Set;
+
+import javafx.scene.paint.Color;
+
+public class Mangeuse extends Particule {
+
+	private final int NBR_BALLES_EXPLOSION = 8;
+
+	public Mangeuse(Point pPos, double pVitesse, double pAngleDep, double pRayon, Color pCouleur, Point pZone,
+			RegroupementParticules environementPart) {
+		super(pPos, pVitesse, pAngleDep, pRayon, pCouleur, pZone, environementPart);
+	}
+
+	@Override
+	public void handleCollision(Particule pPart) {
+		if (pPart instanceof Rebondissante && getRayon().getValue() > pPart.getRayon().getValue()) {
+			manger(pPart);
+		} else
+			rebond(pPart);
+	}
+
+	private void manger(Particule pPart) {
+		System.out.println(getRayon().getValue());
+		setRayon(getRayon().getValue() + 1);
+		if (getRayon().getValue() > 20)
+			explose();
+		System.out.println(getRayon().getValue());
+		environementPart.enleverPart(pPart);
+	}
+
+	private void explose() {
+		Color couleur = getCouleur();
+		for(int i =0;i<)
+	}
+
+}
